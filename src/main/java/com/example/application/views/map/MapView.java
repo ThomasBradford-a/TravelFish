@@ -19,7 +19,6 @@ public class MapView extends VerticalLayout {
         setPadding(false);
         map.setSizeFull();
         map.setView(55.0, 10.0, 4);
-        add (new MapTabs());
         add(map);
     }
   

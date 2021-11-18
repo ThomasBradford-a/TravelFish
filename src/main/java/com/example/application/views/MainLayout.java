@@ -15,6 +15,7 @@ import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Nav;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.UnorderedList;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
@@ -24,6 +25,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.TabVariant;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.router.RouterLink;
@@ -79,7 +81,33 @@ public class MainLayout extends AppLayout {
         addToNavbar(true, createHeaderContent());
         addToDrawer(createDrawerContent());
     }
+    
 
+    private Component createMapTabs() {
+    	
+  	  Tab Fish = new Tab(
+    			VaadinIcon.ANCHOR.create(),
+    			new Span("Fish")
+    		);
+    		Tab Weather = new Tab(
+    			VaadinIcon.SUN_O.create(),
+    			new Span("Weather")
+    		);
+    		Tab Tides = new Tab(
+    			VaadinIcon.MOON_O.create(),
+    			new Span("Tides")
+    		);
+    		
+    		// Set the icon on top
+    		for (Tab tab : new Tab[] { Fish, Weather, Tides }) {
+    			tab.addThemeVariants(TabVariant.LUMO_ICON_ON_TOP);
+    		}
+
+    		Tabs tabs = new Tabs(Fish, Weather, Tides);
+  	
+    		return tabs;
+  }
+    
     private Component createHeaderContent() {
         DrawerToggle toggle = new DrawerToggle();
         toggle.addClassName("text-secondary");
@@ -88,12 +116,16 @@ public class MainLayout extends AppLayout {
 
         viewTitle = new H1();
         viewTitle.addClassNames("m-0", "text-l");
+        
+      
 
-        Header header = new Header(toggle, viewTitle);
+        Header header = new Header(toggle, viewTitle, createMapTabs());
         header.addClassNames("bg-base", "border-b", "border-contrast-10", "box-border", "flex", "h-xl", "items-center",
                 "w-full");
         return header;
     }
+    
+    
 
     private Component createDrawerContent() {
  
@@ -134,7 +166,9 @@ public class MainLayout extends AppLayout {
                 new MenuItemInfo("Map", "la la-map", MapView.class), //
 
                 new MenuItemInfo("Settings", "la la-file", SettingsView.class), //
-
+                
+       
+                
         };
         List<RouterLink> links = new ArrayList<>();
         for (MenuItemInfo menuItemInfo : menuItems) {
