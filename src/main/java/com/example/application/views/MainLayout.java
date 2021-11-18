@@ -166,9 +166,7 @@ public class MainLayout extends AppLayout {
                 new MenuItemInfo("Map", "la la-map", MapView.class), //
 
                 new MenuItemInfo("Settings", "la la-file", SettingsView.class), //
-                
-       
-                
+                  
         };
         List<RouterLink> links = new ArrayList<>();
         for (MenuItemInfo menuItemInfo : menuItems) {
