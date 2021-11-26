@@ -1,23 +1,20 @@
 package com.example.application.views.map;
 
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.Div;
+
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Page;
-import com.vaadin.flow.dom.Element;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Scanner;
 
 import org.json.JSONObject;
-import org.vaadin.elmot.flow.sensors.GeoLocation;
-import org.vaadin.elmot.flow.sensors.Position;
 
 import com.example.application.components.leafletmap.LeafletMap;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.VaadinSession;
 
 import io.ipgeolocation.api.Geolocation;
 import io.ipgeolocation.api.GeolocationParams;
@@ -69,14 +66,37 @@ public class MapView extends VerticalLayout {
 		
 		try {
 			String[] sunTime = getSunTime(geolocation.getLatitude(), geolocation.getLongitude());
-			System.out.println("Sun rise time is: " + sunTime[0] + ", Sunset time is: " + sunTime[1]);
+			System.out.println("Sun rise time is: " + sunTime[0] + "(UTC), Sunset time is: " + sunTime[1] + "(UTC)");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		//tide API call 
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create("https://tides.p.rapidapi.com/tides?longitude=" + geolocation.getLongitude() + "&latitude=" + geolocation.getLatitude() + "&interval=60&duration=1440"))
+				.header("x-rapidapi-host", "tides.p.rapidapi.com")
+				.header("x-rapidapi-key", "f479f3ee79mshc51d938348a653fp109fb3jsneee9a580813f")
+				.method("GET", HttpRequest.BodyPublishers.noBody())
+				.build();
+		HttpResponse<String> response;
+		try {
+			response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+			System.out.println(response.body());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		// need code to convert this string into a JSON object so we can use the data in a meaningful way
 
 	}
 
+	// returns array with information containing time of sunrise and sunset
+	// NOTE: time is in UTC, therefore add 11 hours to convert to local Melbourne time
 	private String[] getSunTime(String lati, String longi) throws IOException {
 
 		String[] sunTime = new String[2];
