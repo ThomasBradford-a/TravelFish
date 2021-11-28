@@ -1,7 +1,14 @@
 package com.example.application.views.map;
 
-
+import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.TabVariant;
+import com.vaadin.flow.component.tabs.Tabs;
 
 import java.io.IOException;
 import java.net.URI;
@@ -37,6 +44,7 @@ public class MapView extends VerticalLayout {
 		setPadding(false);
 		map.setSizeFull();
 		map.setView(55.0, 10.0, 4);
+
 		add(map);
 
 		IPGeolocationAPI api = new IPGeolocationAPI("4960d2a06473426eb14c8863cc45e9b4");
@@ -63,22 +71,22 @@ public class MapView extends VerticalLayout {
 
 		map.setView(Double.parseDouble(geolocation.getLatitude()), Double.parseDouble(geolocation.getLongitude()), 100);
 
-		
+		String[] sunTime = new String[2];
 		try {
-			String[] sunTime = getSunTime(geolocation.getLatitude(), geolocation.getLongitude());
+			sunTime = getSunTime(geolocation.getLatitude(), geolocation.getLongitude());
 			System.out.println("Sun rise time is: " + sunTime[0] + "(UTC), Sunset time is: " + sunTime[1] + "(UTC)");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		//tide API call 
+
+		// tide API call
 		HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create("https://tides.p.rapidapi.com/tides?longitude=" + geolocation.getLongitude() + "&latitude=" + geolocation.getLatitude() + "&interval=60&duration=1440"))
+				.uri(URI.create("https://tides.p.rapidapi.com/tides?longitude=" + geolocation.getLongitude()
+						+ "&latitude=" + geolocation.getLatitude() + "&interval=60&duration=1440"))
 				.header("x-rapidapi-host", "tides.p.rapidapi.com")
-				.header("x-rapidapi-key", "f479f3ee79mshc51d938348a653fp109fb3jsneee9a580813f")
-				.method("GET", HttpRequest.BodyPublishers.noBody())
-				.build();
+				//.header("x-rapidapi-key", "f479f3ee79mshc51d938348a653fp109fb3jsneee9a580813f")
+				.method("GET", HttpRequest.BodyPublishers.noBody()).build();
 		HttpResponse<String> response;
 		try {
 			response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
@@ -90,13 +98,14 @@ public class MapView extends VerticalLayout {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		// need code to convert this string into a JSON object so we can use the data in a meaningful way
+
+		bottomTabs(sunTime);
 
 	}
 
 	// returns array with information containing time of sunrise and sunset
-	// NOTE: time is in UTC, therefore add 11 hours to convert to local Melbourne time
+	// NOTE: time is in UTC, therefore add 11 hours to convert to local Melbourne
+	// time
 	private String[] getSunTime(String lati, String longi) throws IOException {
 
 		String[] sunTime = new String[2];
@@ -120,6 +129,33 @@ public class MapView extends VerticalLayout {
 		sunTime[1] = sunSet;
 
 		return sunTime;
+	}
+
+	private void bottomTabs(String[] sunTime) {
+
+		Tab Fish = new Tab("Fish");
+		Tab Sun = new Tab("Sunrise and Set");
+		Tab Tide = new Tab("Tides");
+
+		Tabs tabs = new Tabs(false, Fish, Sun, Tide);
+
+		Text newText = new Text("");
+		//Text oldText = new Text("");
+		tabs.addSelectedChangeListener(event -> {
+			if (sunTime != null) {
+				if (event.getSelectedTab().getLabel().equals("Sunrise and Set")) {
+					newText.setText(
+							"Sun rise time is: " + sunTime[0] + "(UTC), Sunset time is: " + sunTime[1] + "(UTC)");
+				} else if (event.getSelectedTab().getLabel().equals("Tides")) {
+					newText.setText("tide info");
+				} else if (event.getSelectedTab().getLabel().equals("Fish")) {
+					newText.setText("");
+				}
+			}
+		});
+
+		add(tabs, newText);
+
 	}
 
 }

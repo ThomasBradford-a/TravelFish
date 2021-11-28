@@ -82,31 +82,6 @@ public class MainLayout extends AppLayout {
         addToDrawer(createDrawerContent());
     }
     
-
-    private Component createMapTabs() {
-    	
-  	  Tab Fish = new Tab(
-    			VaadinIcon.ANCHOR.create(),
-    			new Span("Fish")
-    		);
-    		Tab Weather = new Tab(
-    			VaadinIcon.SUN_O.create(),
-    			new Span("Weather")
-    		);
-    		Tab Tides = new Tab(
-    			VaadinIcon.MOON_O.create(),
-    			new Span("Tides")
-    		);
-    		
-    		// Set the icon on top
-    		for (Tab tab : new Tab[] { Fish, Weather, Tides }) {
-    			tab.addThemeVariants(TabVariant.LUMO_ICON_ON_TOP);
-    		}
-
-    		Tabs tabs = new Tabs(Fish, Weather, Tides);
-  	
-    		return tabs;
-  }
     
     private Component createHeaderContent() {
         DrawerToggle toggle = new DrawerToggle();
@@ -119,7 +94,7 @@ public class MainLayout extends AppLayout {
         
       
 
-        Header header = new Header(toggle, viewTitle, createMapTabs());
+        Header header = new Header(toggle, viewTitle);
         header.addClassNames("bg-base", "border-b", "border-contrast-10", "box-border", "flex", "h-xl", "items-center",
                 "w-full");
         return header;
