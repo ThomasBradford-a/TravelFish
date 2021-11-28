@@ -85,6 +85,7 @@ public class MapView extends VerticalLayout {
 				.uri(URI.create("https://tides.p.rapidapi.com/tides?longitude=" + geolocation.getLongitude()
 						+ "&latitude=" + geolocation.getLatitude() + "&interval=60&duration=1440"))
 				.header("x-rapidapi-host", "tides.p.rapidapi.com")
+				// NEED TO UNCOMMENT FOR TIDE API TO WORK
 				//.header("x-rapidapi-key", "f479f3ee79mshc51d938348a653fp109fb3jsneee9a580813f")
 				.method("GET", HttpRequest.BodyPublishers.noBody()).build();
 		HttpResponse<String> response;
@@ -155,7 +156,5 @@ public class MapView extends VerticalLayout {
 		});
 
 		add(tabs, newText);
-
 	}
-
 }
