@@ -16,8 +16,12 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.example.application.components.leafletmap.LeafletMap;
@@ -34,12 +38,14 @@ import com.example.application.views.MainLayout;
 @Route(value = "map", layout = MainLayout.class)
 public class MapView extends VerticalLayout {
 
+	// current time in UTC
+	//private static final String time = Instant.now().toString();
 	private static final int EARTH_RADIUS = 6371;
 
 	private LeafletMap map = new LeafletMap();
 
 	public MapView() {
-
+		
 		setSizeFull();
 		setPadding(false);
 		map.setSizeFull();
@@ -79,16 +85,31 @@ public class MapView extends VerticalLayout {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		String tideInfo = null;
+		try {
+			tideInfo = getTideInfo(geolocation.getLatitude(), geolocation.getLongitude());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 
-		// tide API call
+		bottomTabs(sunTime, tideInfo);
+
+	}
+	
+	
+	// tide API call
+	private String getTideInfo(String lati, String longi) throws IOException{
+		
 		HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create("https://tides.p.rapidapi.com/tides?longitude=" + geolocation.getLongitude()
-						+ "&latitude=" + geolocation.getLatitude() + "&interval=60&duration=1440"))
+				.uri(URI.create("https://tides.p.rapidapi.com/tides?longitude=" + longi
+						+ "&latitude=" + lati + "&interval=60&duration=1440"))
 				.header("x-rapidapi-host", "tides.p.rapidapi.com")
 				// NEED TO UNCOMMENT FOR TIDE API TO WORK
-				//.header("x-rapidapi-key", "f479f3ee79mshc51d938348a653fp109fb3jsneee9a580813f")
+				.header("x-rapidapi-key", "f479f3ee79mshc51d938348a653fp109fb3jsneee9a580813f")
 				.method("GET", HttpRequest.BodyPublishers.noBody()).build();
-		HttpResponse<String> response;
+		HttpResponse<String> response = null;
 		try {
 			response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 			System.out.println(response.body());
@@ -99,9 +120,16 @@ public class MapView extends VerticalLayout {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		bottomTabs(sunTime);
-
+		
+		String str = response.body();
+		JSONObject obj = new JSONObject(str);
+		
+		
+		JSONArray tideInfo = obj.getJSONArray("extremes");
+		
+		String tideString = tideInfo.toString();
+		
+		return tideString;
 	}
 
 	// returns array with information containing time of sunrise and sunset
@@ -132,7 +160,7 @@ public class MapView extends VerticalLayout {
 		return sunTime;
 	}
 
-	private void bottomTabs(String[] sunTime) {
+	private void bottomTabs(String[] sunTime, String tideInfo) {
 
 		Tab Fish = new Tab("Fish");
 		Tab Sun = new Tab("Sunrise and Set");
@@ -148,7 +176,7 @@ public class MapView extends VerticalLayout {
 					newText.setText(
 							"Sun rise time is: " + sunTime[0] + "(UTC), Sunset time is: " + sunTime[1] + "(UTC)");
 				} else if (event.getSelectedTab().getLabel().equals("Tides")) {
-					newText.setText("tide info");
+					newText.setText(tideInfo);
 				} else if (event.getSelectedTab().getLabel().equals("Fish")) {
 					newText.setText("");
 				}
